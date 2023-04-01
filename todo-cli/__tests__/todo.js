@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const todoList = require("../todo");
-const { all, markAsComplete, add } = todoList();
+const { all, markAsComplete, add, overdue, dueToday, dueLater } = todoList();
 describe("TodoList Test Suite", () => {
   beforeAll(() => {
     add({
@@ -26,9 +26,7 @@ describe("TodoList Test Suite", () => {
   });
 
   test("Should retrieve of overdue items", () => {
-    const overdues = all.filter(
-      (item) => item.dueDate < new Date().toISOString().slice(0, 10)
-    );
+    const overdues = overdue();
     for (let i = 0; i < overdues.length; i++) {
       if (!overdues[i].completed) {
         expect(overdues[i].completed).toBe(false);
@@ -39,9 +37,7 @@ describe("TodoList Test Suite", () => {
   });
 
   test("Should retrieve of due today items", () => {
-    const duetoday = all.filter(
-      (item) => item.dueDate === new Date().toISOString().slice(0, 10)
-    );
+    const duetoday = dueToday();
     for (let i = 0; i < duetoday.length; i++) {
       if (!duetoday[i].completed) {
         expect(duetoday[i].completed).toBe(false);
@@ -52,9 +48,7 @@ describe("TodoList Test Suite", () => {
   });
 
   test("Should retrieve of due later items", () => {
-    const duelater = all.filter(
-      (item) => item.dueDate > new Date().toISOString().slice(0, 10)
-    );
+    const duelater = dueLater();
     for (let i = 0; i < duelater.length; i++) {
       if (!duelater[i].completed) {
         expect(duelater[i].completed).toBe(false);
