@@ -24,4 +24,43 @@ describe("TodoList Test Suite", () => {
     markAsComplete(0);
     expect(all[0].completed).toBe(true);
   });
+
+  test("Should retrieve of overdue items", () => {
+    const overdues = all.filter(
+      (item) => item.dueDate < new Date().toISOString().slice(0, 10)
+    );
+    for (let i = 0; i < overdues.length; i++) {
+      if (!overdues[i].completed) {
+        expect(overdues[i].completed).toBe(false);
+        markAsComplete(i);
+        expect(overdues[i].completed).toBe(true);
+      }
+    }
+  });
+
+  test("Should retrieve of due today items", () => {
+    const duetoday = all.filter(
+      (item) => item.dueDate === new Date().toISOString().slice(0, 10)
+    );
+    for (let i = 0; i < duetoday.length; i++) {
+      if (!duetoday[i].completed) {
+        expect(duetoday[i].completed).toBe(false);
+        markAsComplete(i);
+        expect(duetoday[i].completed).toBe(true);
+      }
+    }
+  });
+
+  test("Should retrieve of due later items", () => {
+    const duelater = all.filter(
+      (item) => item.dueDate > new Date().toISOString().slice(0, 10)
+    );
+    for (let i = 0; i < duelater.length; i++) {
+      if (!duelater[i].completed) {
+        expect(duelater[i].completed).toBe(false);
+        markAsComplete(i);
+        expect(duelater[i].completed).toBe(true);
+      }
+    }
+  });
 });
