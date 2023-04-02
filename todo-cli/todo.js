@@ -57,9 +57,7 @@ const formattedDate = (d) => {
 
 const dateToday = new Date();
 const today = formattedDate(dateToday);
-const yesterday = formattedDate(
-  new Date(new Date().setDate(dateToday.getDate() - 1))
-);
+const yesterday = formattedDate(new Date(new Date() - 1));
 const tomorrow = formattedDate(
   new Date(new Date().setDate(dateToday.getDate() + 1))
 );

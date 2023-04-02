@@ -26,35 +26,38 @@ describe("TodoList Test Suite", () => {
   });
 
   test("Should retrieve of overdue items", () => {
-    const overdues = overdue();
-    for (let i = 0; i < overdues.length; i++) {
-      if (!overdues[i].completed) {
-        expect(overdues[i].completed).toBe(false);
-        markAsComplete(i);
-        expect(overdues[i].completed).toBe(true);
-      }
-    }
+    const overDueTodoItemsCount = overdue().length;
+    const dateToday = new Date();
+    add({
+      title: "Test todo",
+      completed: false,
+      dueDate: new Date(new Date().setDate(dateToday.getDate() - 1))
+        .toISOString()
+        .slice(0, 10),
+    });
+    expect(overdue().length).toEqual(overDueTodoItemsCount + 1);
   });
 
   test("Should retrieve of due today items", () => {
-    const duetoday = dueToday();
-    for (let i = 0; i < duetoday.length; i++) {
-      if (!duetoday[i].completed) {
-        expect(duetoday[i].completed).toBe(false);
-        markAsComplete(i);
-        expect(duetoday[i].completed).toBe(true);
-      }
-    }
+    const dueTodayTodoItemsCount = dueToday().length;
+    add({
+      title: "Test todo",
+      completed: false,
+      dueDate: new Date().toISOString().slice(0, 10),
+    });
+    expect(dueToday().length).toEqual(dueTodayTodoItemsCount + 1);
   });
 
   test("Should retrieve of due later items", () => {
-    const duelater = dueLater();
-    for (let i = 0; i < duelater.length; i++) {
-      if (!duelater[i].completed) {
-        expect(duelater[i].completed).toBe(false);
-        markAsComplete(i);
-        expect(duelater[i].completed).toBe(true);
-      }
-    }
+    const dueLaterTodoItemsCount = dueLater().length;
+    const dateToday = new Date();
+    add({
+      title: "Test todo",
+      completed: false,
+      dueDate: new Date(new Date().setDate(dateToday.getDate() + 1))
+        .toISOString()
+        .slice(0, 10),
+    });
+    expect(dueLater().length).toEqual(dueLaterTodoItemsCount + 1);
   });
 });
