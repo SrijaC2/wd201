@@ -89,7 +89,7 @@ module.exports = (sequelize, DataTypes) => {
         this.dueDate === new Date().toISOString().slice(0, 10)
           ? ""
           : this.dueDate
-      }`;
+      }`.trim();
     }
   }
   Todo.init(
