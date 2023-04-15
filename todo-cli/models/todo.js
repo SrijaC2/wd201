@@ -19,11 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       console.log("Overdue");
       // FILL IN HERE
       console.log(
-        (await Todo.overdue())
-          .map((todo) => {
-            return todo.displayableString();
-          })
-          .join("\n")
+        (await Todo.overdue()).map((todo) => {return todo.displayableString();
+          }).join("\n")
       );
 
       console.log("\n");
@@ -32,25 +29,20 @@ module.exports = (sequelize, DataTypes) => {
       // FILL IN HERE
 
       console.log(
-        (await Todo.dueToday())
-          .map((todo) => {
-            return todo.displayableString();
-          })
-          .join("\n")
+        (await Todo.dueToday()).map((todo) => {return todo.displayableString();
+          }).join("\n")
       );
       console.log("\n");
 
       console.log("Due Later");
       // FILL IN HERE
       console.log(
-        (await Todo.dueLater())
-          .map((todo) => {
-            return todo.displayableString();
-          })
-          .join("\n")
+        (await Todo.dueLater()).map((todo) => {return todo.displayableString();}).join("\n")
       );
     }
 
+    
+    
     static async overdue() {
       // FILL IN HERE TO RETURN OVERDUE ITEMS
       return await Todo.findAll({
@@ -68,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
     }
+    
+    
 
     static async dueLater() {
       // FILL IN HERE TO RETURN ITEMS DUE LATER
@@ -82,6 +76,8 @@ module.exports = (sequelize, DataTypes) => {
       // FILL IN HERE TO MARK AN ITEM AS COMPLETE
       await Todo.update({ completed: true }, { where: { id } });
     }
+    
+    
 
     displayableString() {
       const checkbox = this.completed ? "[x]" : "[ ]";
@@ -92,6 +88,8 @@ module.exports = (sequelize, DataTypes) => {
       }`;
     }
   }
+  
+  
   Todo.init(
     {
       title: DataTypes.STRING,
