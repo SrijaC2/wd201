@@ -46,9 +46,40 @@ describe("Todo Application", function () {
     expect(parsedResponse.completed).toBe(false);
 
     const markCompleteResponse = await agent
-      .put(`/todos/${todoID}/markASCompleted`)
+      .put(`/todos/${todoID}/markAsCompleted`)
       .send();
     const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
     expect(parsedUpdateResponse.completed).toBe(true);
+  });
+  test("Fetches all todos in the database using /todos endpoint", async () => {
+    await agent.post("/todos").send({
+      title: "Buy xbox",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    await agent.post("/todos").send({
+      title: "Buy ps3",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    const response = await agent.get("/todos");
+    const parsedResponse = JSON.parse(response.text);
+
+    expect(parsedResponse.length).toBe(4);
+    expect(parsedResponse[3].title).toBe("Buy ps3");
+  });
+
+  test("Deletes a todo with the given ID if it exists and sends a boolean response", async () => {
+    // FILL IN YOUR CODE HERE
+    const response = await agent.post("/todos").send({
+      title: "Buy Icecream",
+      dueDate: new Date().toISOString(),
+      completed: false,
+    });
+    const parsedResponse = JSON.parse(response.text);
+    const todoID = parsedResponse.id;
+    const deleteRes = await agent.delete(`/todos/${todoID}`).send();
+    const parseRes = JSON.parse(deleteRes.text);
+    expect(parseRes).toBe(true);
   });
 });

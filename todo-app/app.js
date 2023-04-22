@@ -6,9 +6,17 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 const { Todo } = require("./models");
 
-app.get("/todos", (request, response) => {
+app.get("/todos", async (request, response) => {
   console.log("Todo list");
+  try {
+    const todoL = await Todo.findAll();
+    return response.send(todoL);
+  } catch (error) {
+    console.log(error);
+    return response.status(422).json(error);
+  }
 });
+
 app.post("/todos", async (request, response) => {
   console.log("Creating a todo", request.body);
   try {
@@ -25,7 +33,7 @@ app.post("/todos", async (request, response) => {
 });
 
 // PUT http://mytodoapp.com/todos/123/markAsCompleted
-app.put("/todos/:id/markASCompleted", async (request, response) => {
+app.put("/todos/:id/markAsCompleted", async (request, response) => {
   console.log("We have to update a todo with ID:", request.params.id);
   const todo = await Todo.findByPk(request.params.id);
   try {
@@ -37,8 +45,17 @@ app.put("/todos/:id/markASCompleted", async (request, response) => {
   }
 });
 
-app.delete("/todos/:id", (request, response) => {
+app.delete("/todos/:id", async (request, response) => {
   console.log("Delete a todo by ID: ", request.params.id);
+  try {
+    const dTodo = await Todo.destroy({
+      where: { id: request.params.id },
+    });
+    response.send(!!dTodo);
+  } catch (error) {
+    console.log(error);
+    return response.status(422).json(error);
+  }
 });
 
 module.exports = app;
