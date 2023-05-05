@@ -56,19 +56,11 @@
                         </div>
                     </div>
                 </form>
-                <%const overdue=[];%>
-                <%const duetoday=[];%>
-                <%const duelater=[];%>
-                <% for(var i=0; i < allTodos.length ; i++){ %>
-                    <% if (allTodos[i].dueDate < new Date().toISOString().slice(0, 10)) {%>
-                        <%overdue.push(allTodos[i])} else if (allTodos[i].dueDate===new Date().toISOString().slice(0, 10)) {%>
-                        <%duetoday.push(allTodos[i])} else if (allTodos[i].dueDate> new Date().toISOString().slice(0, 10)) {%>
-                        <%duelater.push(allTodos[i])%>
-                <% }}%>
+                
                 <div>
                     <%- include('todos.ejs',{title:"Overdue", data:overdue}) %>
-                    <%- include('todos.ejs',{title:"Due Today", data:duetoday})%>
-                    <%- include('todos.ejs',{title:"Due Later", data:duelater}) %>
+                    <%- include('todos.ejs',{title:"Due Today", data:dueToday})%>
+                    <%- include('todos.ejs',{title:"Due Later", data:dueLater}) %>
                 </div>
         </div>
     </div>

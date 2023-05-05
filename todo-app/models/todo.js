@@ -1,6 +1,6 @@
-"use strict";
-const { Model } = require("sequelize");
-const { Op } = require("sequelize");
+'use strict'
+const { Model } = require('sequelize')
+const { Op } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Todo extends Model {
     /**
@@ -8,62 +8,68 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate (models) {
       // define association here
     }
 
-    static addTodo({ title, dueDate }) {
-      return this.create({ title, dueDate, completed: false });
+    static addTodo ({ title, dueDate }) {
+      return this.create({ title, dueDate, completed: false })
     }
 
-    static getTodos() {
-      return this.findAll();
+    static getTodos () {
+      return this.findAll()
     }
 
-    static async overdue() {
+    static async overdue () {
       return this.findAll({
         where: {
           dueDate: {
-            [Op.lt]: new Date().toISOString().slice(0, 10),
-          },
-        },
-      });
+            [Op.lt]: new Date().toISOString().slice(0, 10)
+          }
+        }
+      })
     }
 
-    static async dueLater() {
+    static async dueLater () {
       return this.findAll({
         where: {
           dueDate: {
-            [Op.gt]: new Date().toISOString().slice(0, 10),
-          },
-        },
-      });
+            [Op.gt]: new Date().toISOString().slice(0, 10)
+          }
+        }
+      })
     }
 
-    static async dueToday() {
+    static async dueToday () {
       return this.findAll({
         where: {
           dueDate: {
-            [Op.eq]: new Date().toISOString().slice(0, 10),
-          },
-        },
-      });
+            [Op.eq]: new Date().toISOString().slice(0, 10)
+          }
+        }
+      })
     }
 
-    markAsCompleted() {
-      return this.update({ completed: true });
+    static async remove (id) {
+      return this.destroy({
+        where: { id }
+      })
+    }
+
+    markAsCompleted () {
+      return this.update({ completed: true })
     }
   }
   Todo.init(
     {
       title: DataTypes.STRING,
       dueDate: DataTypes.DATEONLY,
-      completed: DataTypes.BOOLEAN,
+      completed: DataTypes.BOOLEAN
     },
     {
       sequelize,
-      modelName: "Todo",
+      modelName: 'Todo'
     }
-  );
-  return Todo;
-};
+  )
+  return Todo
+}
