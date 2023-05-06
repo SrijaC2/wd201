@@ -14,11 +14,14 @@
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content")
         function updateTodo(id){
-            fetch(`/todos/${id}/markAsCompleted`,{
+            const boStatus = document.querySelector(`#todo-checkbox-${id}`).checked;
+            console.log(boStatus)
+            fetch(`/todos/${id}`,{
                 method:"PUT",
                 headers:{"Content-Type": "application/json"},
                 body: JSON.stringify({
-                    "_csrf":token
+                    "_csrf":token,
+                    completed : boStatus
                 })
             })
             .then((res) =>{
@@ -54,10 +57,10 @@
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="flex gap-2 py-4">
                         <div class="flex-auto">
-                            <input type="text" name="title" placeholder="What's next?"
+                            <input required type="text" name="title" placeholder="What's next?"
                                 class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm " required />
                         </div>
-                        <div class="flex-auto">
+                        <div required class="flex-auto">
                             <input type="date" name="dueDate"
                                 class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm leading-4" />
                         </div>
@@ -72,6 +75,7 @@
                     <%- include('todos.ejs',{title:"Overdue", data:overdue}) %>
                     <%- include('todos.ejs',{title:"Due Today", data:dueToday})%>
                     <%- include('todos.ejs',{title:"Due Later", data:dueLater}) %>
+                    <%- include('todos.ejs',{title:"Completed Items", data:CompletedItems}) %>
                 </div>
         </div>
     </div>
