@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
           dueDate: {
             [Op.lt]: new Date().toISOString().slice(0, 10),
           },
+          completed: false,
         },
       });
     }
@@ -36,6 +37,7 @@ module.exports = (sequelize, DataTypes) => {
           dueDate: {
             [Op.gt]: new Date().toISOString().slice(0, 10),
           },
+          completed: false,
         },
       });
     }
@@ -46,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
           dueDate: {
             [Op.eq]: new Date().toISOString().slice(0, 10),
           },
+          completed: false,
         },
       });
     }
