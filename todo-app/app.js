@@ -197,13 +197,16 @@ app.post("/users", async (request, response) => {
     request.flash("error", "Email field can't empty!");
     return response.redirect("/signup");
   }
-
   if (request.body.firstName.length === 0) {
     request.flash("error", "First name field can't empty!");
     return response.redirect("/signup");
   }
   if (request.body.password.length < 8) {
     request.flash("error", "Password length can't less than 8");
+    return response.redirect("/signup");
+  }
+  if (User.findOne({ where: { email: request.body.email } })) {
+    request.flash("error", "Email already exits!");
     return response.redirect("/signup");
   }
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
