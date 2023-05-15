@@ -101,6 +101,7 @@ app.get(
     if (request.accepts("html")) {
       response.render("todos", {
         title: "Todo application",
+        username: request.user.firstName,
         overdue,
         dueToday,
         dueLater,
