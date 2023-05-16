@@ -205,10 +205,10 @@ app.post("/users", async (request, response) => {
     request.flash("error", "Password length can't less than 8");
     return response.redirect("/signup");
   }
-  if (User.findOne({ where: { email: request.body.email } })) {
-    request.flash("error", "Email already exits!");
-    return response.redirect("/signup");
-  }
+  // if (User.findOne({ where: { email: request.body.email } })) {
+  //   request.flash('error', 'Email already exits!')
+  //   return response.redirect('/signup')
+  // }
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
   console.log(hashedPwd);
   try {
