@@ -226,6 +226,8 @@ app.post("/users", async (request, response) => {
     });
   } catch (error) {
     console.log(error);
+    request.flash("error", error.errors[0].message);
+    return response.redirect("/signup");
   }
 });
 
