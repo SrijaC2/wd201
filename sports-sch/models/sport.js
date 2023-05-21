@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     static addSport({ title }) {
       return this.create({ title });
     }
+
     static getSports() {
       return this.findAll();
     }

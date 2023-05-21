@@ -1,10 +1,9 @@
 {
   "name": "sports-sch",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -e js,ejs", 
+    "start": "nodemon -e js,ejs",
     "start:prod": "node index.js",
     "pretest": "NODE_ENV=test npx sequelize-cli db:drop && NODE_ENV=test npx sequelize-cli db:create",
     "test": "NODE_ENV=test jest --detectOpenHandles",
@@ -33,5 +32,6 @@
     "prettier": "^2.8.8",
     "sequelize-cli": "^6.6.0",
     "supertest": "^6.3.3"
-  }
+  },
+  "description": ""
 }
