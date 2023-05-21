@@ -6,6 +6,23 @@ const { Sport } = require("./models");
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
+app.set("view engine", "ejs");
+const path = require("path");
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", async (request, response) => {
+  const allSports = await Sport.getSports();
+  if (request.accepts("html")) {
+    response.render("index", {
+      allSports,
+    });
+  } else {
+    response.json({
+      allSports,
+    });
+  }
+});
+
 app.post("/sport", async (request, response) => {
   console.log("Creating a sport", request.body);
   try {
