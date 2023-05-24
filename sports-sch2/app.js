@@ -3,7 +3,7 @@ const { request, response } = require("express");
 const express = require("express");
 const csrf = require("tiny-csrf");
 const app = express();
-const { Sport, User, Sessions, PlayerSession } = require("./models");
+const { Sport, User, Sessions, playerSessions } = require("./models");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 app.use(bodyParser.json());
@@ -111,11 +111,9 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     console.log("Creating a sport", request.body);
-    console.log("User Id", request.user.id);
     try {
       const sport = await Sport.addSport({
         title: request.body.title,
-        userId: request.user.id,
       });
       return response.redirect("/sport");
     } catch (error) {
@@ -125,36 +123,6 @@ app.post(
   }
 );
 
-app.post(
-  "/createSession/:sportId",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    try {
-      const session = await Sessions.addSession({
-        sessionName: request.body.sessionName,
-        date: request.body.date,
-        time: request.body.time,
-        venue: request.body.venue,
-        playersNeeded: request.body.playersNeeded,
-        userId: request.user.id,
-      });
-      console.log(session);
-      const names = request.body.names;
-      const nameArr = names.split(",");
-      console.log(session.id);
-      for (let i = 0; i < nameArr.length; i++) {
-        await PlayerSession.create({
-          player_name: nameArr[i],
-          session_id: session.id,
-        });
-      }
-      return response.redirect(`/sport/${request.params.sportId}`);
-    } catch (error) {
-      console.log(error);
-      return response.status(422).json(error);
-    }
-  }
-);
 app.get("/signup", (request, response) => {
   response.render("signup", {
     title: "Signup",
@@ -183,6 +151,37 @@ app.post("/users", async (request, response) => {
     console.log(error);
   }
 });
+
+app.post(
+  "/createSession/:sportId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const session = await Sessions.addSession({
+        sessionName: request.body.sessionName,
+        date: request.body.date,
+        time: request.body.time,
+        venue: request.body.venue,
+        playersNeeded: request.body.playersNeeded,
+        userId: request.user.id,
+      });
+      console.log(session);
+      const names = request.body.names;
+      const nameArr = names.split(",");
+      console.log(session.id);
+      for (let i = 0; i < nameArr.length; i++) {
+        await playerSessions.create({
+          player_name: nameArr[i],
+          session_id: session.id,
+        });
+      }
+      return response.redirect(`/sport/${request.params.sportId}`);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
 
 app.get("/login", (request, response) => {
   if (request.user) {

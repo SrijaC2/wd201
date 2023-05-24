@@ -1,7 +1,5 @@
-/* eslint-disable no-unused-vars */
 "use strict";
 const { Model } = require("sequelize");
-const { request } = require("../app");
 module.exports = (sequelize, DataTypes) => {
   class Sport extends Model {
     /**
@@ -13,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Sport.belongsTo(models.User, {
         foreignKey: "userId",
+      });
+      Sport.hasMany(models.Sessions, {
+        foreignKey: "sportId",
       });
     }
 
