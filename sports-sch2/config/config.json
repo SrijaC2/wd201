@@ -2,14 +2,14 @@
   "development": {
     "username": "postgres",
     "password": "chinni06",
-    "database": "wd-sports-dev",
+    "database": "wd-sports-dev2",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
     "password": "chinni06",
-    "database": "wd-sports-test",
+    "database": "wd-sports-test2",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
