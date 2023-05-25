@@ -4,10 +4,9 @@
 This application aids in both the creation of sports by administrators and the creation of sports sessions by participants and also admins. Players and administrators can both join in the sports sessions that have been organised.
 
 Screenshorts of my application-
-![Screenshot of a Sports Scheduler](https://drive.google.com/file/d/120TY2--49kzC61RBkJ0KCdDDiCGcGGar/view?usp=sharing)
-![Screenshot of a Sports Scheduler](https://drive.google.com/uc?export=view&id=120TY2--49kzC61RBkJ0KCdDDiCGcGGar)
-![Screenshot of a Created Sport](https://drive.google.com/file/d/1Fje3fbV98dvmg-cKwdBCLwFLnPqIVRxB/view?usp=sharing)
-![Sreenshot of creating a session](https://drive.google.com/file/d/1B94lYGG6wY4LJT2NYu2zFQuD3djygk9j/view?usp=sharing)
+![Screenshot of a Sports Scheduler](https://drive.google.com/uc?export=view&id=1vG-O8dIImcoqxOBvY47bnnA_KwkYdiFW)
+![Screenshot of a Created Sport](https://drive.google.com/uc?export=view&id=17Hh_citIAD6B3R_pyQwF-u2WW1tttKbf)
+![Sreenshot of creating a session](https://drive.google.com/uc?export=view&id=1DR1uLhl6Pfv8xxAISIWwKf6kH6Yp1VDY)
 
 Link to the live URL on application- https://srija-sports-scheduler-j8vm.onrender.com
 
