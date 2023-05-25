@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
   Sport.init(
     {
       title: DataTypes.STRING,
+      userId: DataTypes.INTEGER,
     },
     {
       sequelize,
