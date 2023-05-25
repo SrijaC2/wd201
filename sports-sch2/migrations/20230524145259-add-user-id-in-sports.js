@@ -6,14 +6,14 @@ module.exports = {
     await queryInterface.addColumn("Sports", "userId", {
       type: Sequelize.DataTypes.INTEGER,
     });
-    await queryInterface.addConstraint("Sports", {
-      fields: ["userId"],
-      type: "foreign key",
-      references: {
-        table: "Users",
-        field: "id",
-      },
-    });
+    // await queryInterface.addConstraint("Sports", {
+    //   fields: ["userId"],
+    //   type: "foreign key",
+    //   references: {
+    //     table: "Users",
+    //     field: "id",
+    //   },
+    // });
     /**
      * Add altering commands here.
      *
