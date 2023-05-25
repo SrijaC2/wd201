@@ -21,6 +21,10 @@ const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
 
+const flash = require("connect-flash");
+app.set("views", path.join(__dirname, "views"));
+app.use(flash());
+
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
@@ -35,6 +39,11 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
+
 passport.use(
   new LocalStrategy(
     {
@@ -48,12 +57,14 @@ passport.use(
           if (result) {
             return done(null, user);
           } else {
-            return done("Invalid password");
+            return done(null, false, { message: "Invalid password" });
           }
         })
         // eslint-disable-next-line n/handle-callback-err
         .catch((error) => {
-          return error;
+          return done(null, false, {
+            message: "Your account doesn't exist, try signing up",
+          });
         });
     }
   )
@@ -114,6 +125,7 @@ app.post(
     try {
       const sport = await Sport.addSport({
         title: request.body.title,
+        userId: request.user.id,
       });
       return response.redirect("/sport");
     } catch (error) {
@@ -133,6 +145,10 @@ app.get("/signup", (request, response) => {
 app.post("/users", async (request, response) => {
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
   console.log(hashedPwd);
+  if (request.body.password.length < 8) {
+    request.flash("error", "Password length can't less than 8");
+    return response.redirect("/signup");
+  }
   try {
     const user = await User.create({
       firstName: request.body.firstName,
@@ -149,6 +165,8 @@ app.post("/users", async (request, response) => {
     });
   } catch (error) {
     console.log(error);
+    request.flash("error", error.errors[0].message);
+    return response.redirect("/signup");
   }
 });
 
@@ -156,7 +174,13 @@ app.post(
   "/createSession/:sportId",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (request.body.playersNeeded < 0) {
+      request.flash("error", "Number of players needed can't less than 0");
+      return response.redirect(`/sport/sessions/${request.params.sportId}`);
+    }
+    console.log(request.body);
     try {
+      console.log("Sessions name", request.body.sessionName);
       const session = await Sessions.addSession({
         sessionName: request.body.sessionName,
         date: request.body.date,
@@ -164,6 +188,7 @@ app.post(
         venue: request.body.venue,
         playersNeeded: request.body.playersNeeded,
         userId: request.user.id,
+        sportId: request.params.sportId,
       });
       console.log(session);
       const names = request.body.names;
@@ -197,6 +222,7 @@ app.post(
   "/session",
   passport.authenticate("local", {
     failureRedirect: "/login",
+    failureFlash: true,
   }),
   function (request, response) {
     console.log(request.user);
@@ -219,6 +245,7 @@ app.get(
   async (request, response, next) => {
     console.log(request.user.id);
     const allSportsPart = await Sport.UsergetSports(request.user.id);
+    console.log(allSportsPart);
     try {
       response.render("createSpt", {
         csrfToken: request.csrfToken(),
@@ -236,15 +263,23 @@ app.get(
   async (request, response, next) => {
     console.log("We have to consider sport with ID:", request.params.sportId);
     const sport = await Sport.findByPk(request.params.sportId);
-    console.log(sport.title);
-    try {
-      response.render("ParticularSpt", {
-        title: sport.title,
-        sport,
-        csrfToken: request.csrfToken(),
+    const allSessionPart = await Sessions.UsergetSession(request.user.id);
+    console.log(allSessionPart);
+    if (request.accepts("html")) {
+      try {
+        response.render("ParticularSpt", {
+          title: sport.title,
+          sport,
+          allSessionPart,
+          csrfToken: request.csrfToken(),
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      response.json({
+        allSessionPart,
       });
-    } catch (error) {
-      console.log(error);
     }
   }
 );

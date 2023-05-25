@@ -9,6 +9,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      sessionName: {
+        type: Sequelize.STRING,
+      },
       date: {
         type: Sequelize.DATE,
       },

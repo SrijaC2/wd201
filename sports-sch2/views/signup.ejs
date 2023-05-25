@@ -19,19 +19,19 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="py-3">
                     <label for="firstName">First Name:</label>
-                    <input  type="text" name="firstName" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                    <input required type="text" name="firstName" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
                 </div>
                 <div class="py-3">
                     <label for="lastName">Last Name:</label>
-                <input type="text" name="lastName" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                <input required type="text" name="lastName" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
                 </div>
                 <div class="py-3">
                     <label for="email" >Email:</label>
-                <input  type="email" name="email" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                <input required type="email" name="email" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
                 </div>
                 <div class="py-3">
                     <label for="role">Choose a role:</label>
-                    <select  name="role" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                    <select required name="role" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
                         <option value="" disabled selected hidden></option>
                         <option value="player">Player</option>
                         <option value="admin">Admin</option>
@@ -39,13 +39,18 @@
                 </div>
                 <div class="py-3">
                     <label for="password">Password:</label>
-                    <input type="password" name="password" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                    <input required type="password" name="password" class="border border-gray-300 text-gray-900 rounded p-2 w-full">
                 </div>
                 <div class="py-3">
                     <button type="submit" class="text-white bg-purple-600 hover:bg-blue-800 font-medium rounded px-5 py-2">Sign up</button>
                 </div>
                 
             </form>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li class="bg-red-200 my-3 list-none rounded px-4 py-2"> <%= messages.error[i] %></li>
+                <% } %>
+              <% } %>
         </div>
     </div>
 </body>

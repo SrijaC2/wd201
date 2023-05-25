@@ -19,8 +19,20 @@
             <h1 style="font-family:Georgia, 'Times New Roman', Times, serif; font-size:xx-large;"class="mt-4"><b><%=title%></b></h1>
             <h2  style="color: blue" class="mt-3"><b>Sessions</b></h2>
                 <div>
-                <a href="sessions/<%=sport.id%>" class="hover:bg-purple-200 text-sky-600"><u>Create a new Session</u> </a><br>
-                <a href="viewPreSessions/<%=sport.id%>" class="hover:bg-purple-200 text-sky-600"><u>View Previous Sessions </u></a>
+                <a href="sessions/<%=sport.id%>" class="hover:bg-purple-200 text-sky-600 rounded"><u>Create a new Session</u> </a><br>
+                <!--<a href="viewPreSessions/<%=sport.id%>" class="hover:bg-purple-200 text-sky-600 rounded"><u>View Previous Sessions </u></a>-->
+                </div>
+                <div>
+                    <h2  style="color: blue" class="mt-3"><b>List of Created Sessions:</b></h2>
+                    <table>
+                        <% for(var i=0; i< allSessionPart.length; i++) { %>
+                            <tr>
+                                <td class="hover:bg-purple-200 rounded">
+                                    <%= allSessionPart[i].sessionName %>
+                                </td>
+                            </tr>
+                            <% } %>
+                    </table>
                 </div>
         </div>
     </div>
