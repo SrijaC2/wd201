@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
-"use strict";
-const { Model } = require("sequelize");
-const { request } = require("../app");
+'use strict'
+const { Model } = require('sequelize')
+const { request } = require('../app')
 module.exports = (sequelize, DataTypes) => {
   class Sport extends Model {
     /**
@@ -9,37 +9,37 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate(models) {
+    static associate (models) {
       // define association here
       Sport.belongsTo(models.User, {
-        foreignKey: "userId",
-      });
+        foreignKey: 'userId'
+      })
     }
 
-    static addSport({ title, userId }) {
-      return this.create({ title, userId });
+    static addSport ({ title, userId }) {
+      return this.create({ title, userId })
     }
 
-    static getSports() {
-      return this.findAll();
+    static getSports () {
+      return this.findAll()
     }
 
-    static UsergetSports(userId) {
+    static UsergetSports (userId) {
       return this.findAll({
         where: {
-          userId,
-        },
-      });
+          userId
+        }
+      })
     }
   }
   Sport.init(
     {
-      title: DataTypes.STRING,
+      title: DataTypes.STRING
     },
     {
       sequelize,
-      modelName: "Sport",
+      modelName: 'Sport'
     }
-  );
-  return Sport;
-};
+  )
+  return Sport
+}

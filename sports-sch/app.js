@@ -1,132 +1,134 @@
 /* eslint-disable no-unused-vars */
-const { request, response } = require("express");
-const express = require("express");
-const csrf = require("tiny-csrf");
-const app = express();
-const { Sport, User, Sessions, PlayerSession } = require("./models");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-app.use(bodyParser.json());
+const { request, response } = require('express')
+const express = require('express')
+const csrf = require('tiny-csrf')
+const app = express()
+const { Sport,User,Sessions, PlayerSession } = require('./models')
 
-app.set("view engine", "ejs");
-const path = require("path");
-app.use(express.static(path.join(__dirname, "public")));
+const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+app.use(bodyParser.json())
 
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser("shh! some secret string"));
-app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+app.set('view engine', 'ejs')
+const path = require('path')
+app.set('views', path.join(__dirname, 'views'))
+app.use(express.static(path.join(__dirname, 'public')))
 
-const passport = require("passport");
-const connectEnsureLogin = require("connect-ensure-login");
-const session = require("express-session");
-const LocalStrategy = require("passport-local");
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser('shh! some secret string'))
+app.use(csrf('this_should_be_32_character_long', ['POST', 'PUT', 'DELETE']))
 
-const bcrypt = require("bcrypt");
-const saltRounds = 10;
+const passport = require('passport')
+const connectEnsureLogin = require('connect-ensure-login')
+const session = require('express-session')
+const LocalStrategy = require('passport-local')
+
+const bcrypt = require('bcrypt')
+const saltRounds = 10
 
 app.use(
   session({
-    secret: "my-super-secret-key-21728172615261563",
+    secret: 'my-super-secret-key-21728172615261563',
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000,
-    },
+      maxAge: 24 * 60 * 60 * 1000
+    }
   })
-);
-app.use(passport.initialize());
-app.use(passport.session());
+)
+app.use(passport.initialize())
+app.use(passport.session())
 
 passport.use(
   new LocalStrategy(
     {
-      usernameField: "email",
-      passwordField: "password",
+      usernameField: 'email',
+      passwordField: 'password'
     },
     (username, password, done) => {
       User.findOne({ where: { email: username } })
         .then(async function (user) {
-          const result = await bcrypt.compare(password, user.password);
+          const result = await bcrypt.compare(password, user.password)
           if (result) {
-            return done(null, user);
+            return done(null, user)
           } else {
-            return done("Invalid password");
+            return done('Invalid password')
           }
         })
         // eslint-disable-next-line n/handle-callback-err
         .catch((error) => {
-          return error;
-        });
+          return error
+        })
     }
   )
-);
+)
 
 passport.serializeUser((user, done) => {
-  console.log("Serializing user in session", user.id);
-  done(null, user.id);
-});
+  console.log('Serializing user in session', user.id)
+  done(null, user.id)
+})
 
 passport.deserializeUser((id, done) => {
   User.findByPk(id)
     .then((user) => {
-      done(null, user);
+      done(null, user)
     })
     .catch((error) => {
-      done(error, null);
-    });
-});
+      done(error, null)
+    })
+})
 
-app.get("/", async (request, response) => {
+app.get('/', async (request, response) => {
   if (request.user) {
-    return response.redirect("/sport");
+    return response.redirect('/sport')
   }
-  return response.render("index", {
-    csrfToken: request.csrfToken(),
-  });
-});
+  return response.render('index', {
+    csrfToken: request.csrfToken()
+  })
+})
 
 app.get(
-  "/sport",
+  '/sport',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log(request.user);
-    const loggedInUserRole = request.user.role;
-    console.log(loggedInUserRole);
+    console.log(request.user)
+    const loggedInUserRole = request.user.role
+    console.log(loggedInUserRole)
 
-    const allSports = await Sport.getSports();
-    if (request.accepts("html")) {
-      response.render("sports", {
+    const allSports = await Sport.getSports()
+    if (request.accepts('html')) {
+      response.render('sports', {
         allSports,
         role: loggedInUserRole,
-        csrfToken: request.csrfToken(),
-      });
+        csrfToken: request.csrfToken()
+      })
     } else {
       response.json({
-        allSports,
-      });
+        allSports
+      })
     }
   }
-);
+)
 
 app.post(
-  "/sport",
+  '/sport',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log("Creating a sport", request.body);
-    console.log("User Id", request.user.id);
+    console.log('Creating a sport', request.body)
+    console.log('User Id', request.user.id)
     try {
       const sport = await Sport.addSport({
         title: request.body.title,
-        userId: request.user.id,
-      });
-      return response.redirect("/sport");
+        userId: request.user.id
+      })
+      return response.redirect('/sport')
     } catch (error) {
-      console.log(error);
-      return response.status(422).json(error);
+      console.log(error)
+      return response.status(422).json(error)
     }
   }
-);
+)
 
 app.post(
-  "/createSession/:sportId",
+  '/createSession/:sportId',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     try {
@@ -136,135 +138,137 @@ app.post(
         time: request.body.time,
         venue: request.body.venue,
         playersNeeded: request.body.playersNeeded,
-        userId: request.user.id,
-      });
-      console.log(session);
-      const names = request.body.names;
-      const nameArr = names.split(",");
-      console.log(session.id);
+        userId: request.user.id
+      })
+      console.log(session)
+      const names = request.body.names
+      const nameArr = names.split(',')
+      console.log(session.id)
       for (let i = 0; i < nameArr.length; i++) {
         await PlayerSession.create({
           player_name: nameArr[i],
-          session_id: session.id,
-        });
+          session_id: session.id
+        })
       }
-      return response.redirect(`/sport/${request.params.sportId}`);
+      return response.redirect(`/sport/${request.params.sportId}`)
     } catch (error) {
-      console.log(error);
-      return response.status(422).json(error);
+      console.log(error)
+      return response.status(422).json(error)
     }
   }
-);
-app.get("/signup", (request, response) => {
-  response.render("signup", {
-    title: "Signup",
-    csrfToken: request.csrfToken(),
-  });
-});
+)
+app.get('/signup', (request, response) => {
+  response.render('signup', {
+    title: 'Signup',
+    csrfToken: request.csrfToken()
+  })
+})
 
-app.post("/users", async (request, response) => {
-  const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
-  console.log(hashedPwd);
+app.post('/users', async (request, response) => {
+  const hashedPwd = await bcrypt.hash(request.body.password, saltRounds)
+  console.log(hashedPwd)
+  console.log('User Details', User)
   try {
     const user = await User.create({
       firstName: request.body.firstName,
       lastName: request.body.lastName,
       email: request.body.email,
       role: request.body.role,
-      password: hashedPwd,
-    });
+      password: hashedPwd
+    })
+    console.log('User Details', user)
     request.login(user, (err) => {
       if (err) {
-        console.log(err);
+        console.log(err)
       }
-      response.redirect("/sport");
-    });
+      response.redirect('/sport')
+    })
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-});
+})
 
-app.get("/login", (request, response) => {
+app.get('/login', (request, response) => {
   if (request.user) {
-    return response.redirect("/sport");
+    return response.redirect('/sport')
   }
-  return response.render("login", {
-    title: "Login",
-    csrfToken: request.csrfToken(),
-  });
-});
+  return response.render('login', {
+    title: 'Login',
+    csrfToken: request.csrfToken()
+  })
+})
 
 app.post(
-  "/session",
-  passport.authenticate("local", {
-    failureRedirect: "/login",
+  '/session',
+  passport.authenticate('local', {
+    failureRedirect: '/login'
   }),
   function (request, response) {
-    console.log(request.user);
-    response.redirect("/sport");
+    console.log(request.user)
+    response.redirect('/sport')
   }
-);
+)
 
-app.get("/signout", (request, response, next) => {
+app.get('/signout', (request, response, next) => {
   request.logout((err) => {
     if (err) {
-      return next(err);
+      return next(err)
     }
-    response.redirect("/");
-  });
-});
+    response.redirect('/')
+  })
+})
 
 app.get(
-  "/createSport",
+  '/createSport',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response, next) => {
-    console.log(request.user.id);
-    const allSportsPart = await Sport.UsergetSports(request.user.id);
+    console.log(request.user.id)
+    const allSportsPart = await Sport.UsergetSports(request.user.id)
     try {
-      response.render("createSpt", {
+      response.render('createSpt', {
         csrfToken: request.csrfToken(),
-        allSportsPart,
-      });
+        allSportsPart
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
-);
+)
 
 app.get(
-  "/sport/:sportId",
+  '/sport/:sportId',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response, next) => {
-    console.log("We have to consider sport with ID:", request.params.sportId);
-    const sport = await Sport.findByPk(request.params.sportId);
-    console.log(sport.title);
+    console.log('We have to consider sport with ID:', request.params.sportId)
+    const sport = await Sport.findByPk(request.params.sportId)
+    console.log(sport.title)
     try {
-      response.render("ParticularSpt", {
+      response.render('ParticularSpt', {
         title: sport.title,
         sport,
-        csrfToken: request.csrfToken(),
-      });
+        csrfToken: request.csrfToken()
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
-);
+)
 
 app.get(
-  "/sport/sessions/:sportId",
+  '/sport/sessions/:sportId',
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response, next) => {
-    const sport = await Sport.findByPk(request.params.sportId);
+    const sport = await Sport.findByPk(request.params.sportId)
     try {
-      response.render("createSession", {
+      response.render('createSession', {
         title: sport.title,
         sport,
-        csrfToken: request.csrfToken(),
-      });
+        csrfToken: request.csrfToken()
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
-);
+)
 
-module.exports = app;
+module.exports = app
