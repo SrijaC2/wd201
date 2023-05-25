@@ -102,17 +102,21 @@ app.get(
     const loggedInUserRole = request.user.role;
     console.log(loggedInUserRole);
 
-    const allSports = await Sport.getSports();
-    if (request.accepts("html")) {
-      response.render("sports", {
-        allSports,
-        role: loggedInUserRole,
-        csrfToken: request.csrfToken(),
-      });
-    } else {
-      response.json({
-        allSports,
-      });
+    try {
+      const allSports = await Sport.getSports();
+      if (request.accepts("html")) {
+        response.render("sports", {
+          allSports,
+          role: loggedInUserRole,
+          csrfToken: request.csrfToken(),
+        });
+      } else {
+        response.json({
+          allSports,
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 );
