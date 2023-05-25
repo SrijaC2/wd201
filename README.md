@@ -5,6 +5,7 @@ This application aids in both the creation of sports by administrators and the c
 
 Screenshorts of my application-
 ![Screenshot of a Sports Scheduler](https://drive.google.com/file/d/120TY2--49kzC61RBkJ0KCdDDiCGcGGar/view?usp=sharing)
+![Screenshot of a Sports Scheduler](https://drive.google.com/uc?export=view&id=120TY2--49kzC61RBkJ0KCdDDiCGcGGar)
 ![Screenshot of a Created Sport](https://drive.google.com/file/d/1Fje3fbV98dvmg-cKwdBCLwFLnPqIVRxB/view?usp=sharing)
 ![Sreenshot of creating a session](https://drive.google.com/file/d/1B94lYGG6wY4LJT2NYu2zFQuD3djygk9j/view?usp=sharing)
 
