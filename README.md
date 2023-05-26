@@ -10,4 +10,4 @@ Screenshorts of my application-
 
 Link to the live URL on application- https://srija-sports-scheduler-j8vm.onrender.com
 
-Link to the video demo- 
+Link to the video demo- https://drive.google.com/file/d/1gmdx7gIpWDzYnuKKOMrWvVDo424J-z1I/view?usp=sharing
