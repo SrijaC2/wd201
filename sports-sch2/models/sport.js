@@ -32,6 +32,16 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
     }
+
+    static async remove(id) {
+      return this.destroy({
+        where: { id },
+      });
+    }
+
+    static async setTitle(newtitle, sport) {
+      return sport.update({ title: newtitle });
+    }
   }
   Sport.init(
     {

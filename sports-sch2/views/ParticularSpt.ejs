@@ -5,18 +5,45 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
     <link rel="stylesheet" href="./css/styles.css">
     <title><%=title%></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        var token = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content")
+        function deleteSport(id){
+            fetch(`/sport/${id}`,{
+                method:"delete",
+                headers:{"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    "_csrf":token
+                })
+            })
+            .then((res) =>{
+                if (res.ok){
+                    window.location.replace('/sport')
+                }    
+            })
+            .catch((err) => console.error(err))
+        }
+    </script>
 </head>
 
 <body>
     <div class="grid grid-cols-6">
-        <div class="col-start-3 col-span-2">
+        <div class="col-start-2 col-span-4">
             <%- include('header.ejs') %>
             <b class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-3 py-1 "><a href="/sport">Go Back</a></b>
             <b class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-3 py-1 "><a href="/signout">Signout</a></b>
-            <h1 style="font-family:Georgia, 'Times New Roman', Times, serif; font-size:xx-large;"class="mt-4"><b><%=title%></b></h1>
+            <div class="mt-3">
+                <h1 style="font-family:Georgia, 'Times New Roman', Times, serif; font-size:xx-large; display: inline;"class="mt-4"><b><%=title%></b></h1>
+                <%if (userRole==='admin'){%>
+                    <p style="color:blue; display: inline;  margin-left: 50%; ;"><a href="edit/<%=sport.id%>"><u>Edit</u></a>  <a href="#" onclick="deleteSport(<%= sport.id %>)"><u>Delete</u></a></p>
+                <%}%>
+            </div>
+           
             <h2  style="color: blue" class="mt-3"><b>Sessions</b></h2>
                 <div>
                 <a href="sessions/<%=sport.id%>" class="hover:bg-purple-200 text-sky-600 rounded"><u>Create a new Session</u> </a><br>

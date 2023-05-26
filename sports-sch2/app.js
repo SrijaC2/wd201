@@ -268,6 +268,7 @@ app.get(
     console.log("We have to consider sport with ID:", request.params.sportId);
     const sport = await Sport.findByPk(request.params.sportId);
     const allSessionPart = await Sessions.UsergetSession(request.user.id);
+    const userRole = request.user.role;
     console.log(allSessionPart);
     if (request.accepts("html")) {
       try {
@@ -275,6 +276,7 @@ app.get(
           title: sport.title,
           sport,
           allSessionPart,
+          userRole,
           csrfToken: request.csrfToken(),
         });
       } catch (error) {
@@ -301,6 +303,54 @@ app.get(
       });
     } catch (error) {
       console.log(error);
+    }
+  }
+);
+
+app.delete(
+  "/sport/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("Delete a sport by ID: ", request.params.id);
+    try {
+      await Sport.remove(request.params.id);
+      return response.json({ success: true });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get(
+  "/sport/edit/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response, next) => {
+    const sport = await Sport.findByPk(request.params.id);
+    try {
+      response.render("editSport", {
+        csrfToken: request.csrfToken(),
+        sport,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.post(
+  "/sport/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response, next) => {
+    console.log("We have to update a Sport with ID:", request.params.id);
+    const sport = await Sport.findByPk(request.params.id);
+    try {
+      const updatedSport = await Sport.setTitle(request.body.title, sport);
+      console.log(updatedSport);
+      return response.redirect(`/sport/${request.params.id}`);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
     }
   }
 );
