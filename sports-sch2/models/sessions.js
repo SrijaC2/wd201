@@ -40,23 +40,115 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static UsergetSession(userId) {
+    static editSession({
+      Session1,
+      sessionName,
+      date,
+      time,
+      venue,
+      playersNeeded,
+      userId,
+      sportId,
+    }) {
+      return Session1.update({
+        sessionName,
+        date,
+        time,
+        venue,
+        playersNeeded,
+        userId,
+        sportId,
+      });
+    }
+
+    static UsergetSession(userId, sportId) {
       return this.findAll({
         where: {
           userId,
+          sportId,
         },
       });
+    }
+
+    static incPlayerCount(Session) {
+      return Session.update({ playersNeeded: Session.playersNeeded + 1 });
+    }
+
+    static decPlayerCount(Session) {
+      return Session.update({ playersNeeded: Session.playersNeeded - 1 });
+    }
+
+    static async SportSessions(sportId) {
+      return this.findAll({
+        where: {
+          sportId,
+        },
+      });
+    }
+
+    static async UserSessions(sessionIDs) {
+      return this.findAll({
+        where: {
+          id: sessionIDs,
+        },
+      });
+    }
+
+    static async UpSessions(sportSessions) {
+      const upSessions = sportSessions.filter(
+        (sportSessions) =>
+          new Date(`${sportSessions.date} ${sportSessions.time}`) >= new Date()
+      );
+      return upSessions;
+    }
+
+    static async PrevSessions(sportSessions) {
+      const prevSessions = sportSessions.filter(
+        (sportSessions) =>
+          new Date(`${sportSessions.date} ${sportSessions.time}`) < new Date()
+      );
+      return prevSessions;
+    }
+
+    static async getUncancelSess() {
+      return this.findAll({
+        where: {
+          canceled: null,
+        },
+      });
+    }
+
+    static async count(session, id) {
+      let counter = 0;
+      for (let j = 0; j < session.length; j++) {
+        if (session[j].sportId === id) {
+          counter++;
+        }
+      }
+      return counter;
+    }
+
+    static async findRange(sessionlist, date1, date2) {
+      const rangeSessions = sessionlist.filter(
+        (sessionlist) =>
+          new Date(`${sessionlist.date} ${sessionlist.time}`) >=
+            new Date(date1) &&
+          new Date(`${sessionlist.date} ${sessionlist.time}`) <= new Date(date2)
+      );
+      return rangeSessions;
     }
   }
   Sessions.init(
     {
-      date: DataTypes.DATE,
+      date: DataTypes.DATEONLY,
       time: DataTypes.TIME,
       venue: DataTypes.STRING,
       playersNeeded: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,
       sessionName: DataTypes.STRING,
       sportId: DataTypes.INTEGER,
+      canceled: DataTypes.BOOLEAN,
+      message: DataTypes.STRING,
     },
     {
       sequelize,

@@ -26,6 +26,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(flash());
 
 const bcrypt = require("bcrypt");
+const sport = require("./models/sport");
 const saltRounds = 10;
 
 app.use(
@@ -104,10 +105,16 @@ app.get(
 
     try {
       const allSports = await Sport.getSports();
+      const playSessions = await playerSessions.getSessions(request.user.id);
+      const sessionIDs = playSessions.map((v) => v.session_id);
+      const UserSessions = await Sessions.UserSessions(sessionIDs);
+      console.log(UserSessions);
+      const allUpcoming = await Sessions.UpSessions(UserSessions);
       if (request.accepts("html")) {
         response.render("sports", {
           allSports,
           role: loggedInUserRole,
+          allUpcoming,
           csrfToken: request.csrfToken(),
         });
       } else {
@@ -267,7 +274,14 @@ app.get(
   async (request, response, next) => {
     console.log("We have to consider sport with ID:", request.params.sportId);
     const sport = await Sport.findByPk(request.params.sportId);
-    const allSessionPart = await Sessions.UsergetSession(request.user.id);
+    const allSessionPart = await Sessions.UsergetSession(
+      request.user.id,
+      request.params.sportId
+    );
+    const allSportSessions = await Sessions.SportSessions(
+      request.params.sportId
+    );
+    const allUpcoming = await Sessions.UpSessions(allSportSessions);
     const userRole = request.user.role;
     console.log(allSessionPart);
     if (request.accepts("html")) {
@@ -276,6 +290,7 @@ app.get(
           title: sport.title,
           sport,
           allSessionPart,
+          allUpcoming,
           userRole,
           csrfToken: request.csrfToken(),
         });
@@ -355,4 +370,297 @@ app.post(
   }
 );
 
+app.get(
+  "/sport/partSession/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response, next) => {
+    console.log("We have to consider sportSession with ID:", request.params.id);
+    const Session = await Sessions.findByPk(request.params.id);
+    const Players = await playerSessions.getPlayers(Session.id);
+    const userId = request.user.id;
+    console.log("Players", Players);
+    try {
+      response.render("particularSession", {
+        title: Session.sessionName,
+        Session,
+        Players,
+        userId,
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.delete(
+  "/playerSession/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("Delete a player by ID: ", request.params.id);
+    try {
+      const playerRecord = await playerSessions.findByPk(request.params.id);
+      const Session = await Sessions.findByPk(playerRecord.session_id);
+      console.log("1st", Session);
+      await playerSessions.remove(request.params.id);
+      await Sessions.incPlayerCount(Session);
+      console.log("2nd", Session);
+      return response.json({ success: true });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.post(
+  "/playerSession/player/:sessionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response, next) => {
+    console.log("Joining in session:", request.user.id);
+    const userId = request.user.id;
+    try {
+      const Session = await Sessions.findByPk(request.params.sessionId);
+      await playerSessions.create({
+        player_name: `${request.user.firstName} ${request.user.lastName}`,
+        player_id: userId,
+        session_id: request.params.sessionId,
+      });
+      await Sessions.decPlayerCount(Session);
+      return response.redirect(
+        `/sport/partSession/${request.params.sessionId}`
+      );
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.delete(
+  "/playerSession/player/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    console.log("Deleting a player");
+    try {
+      const Session = await Sessions.findByPk(request.params.id);
+      await playerSessions.removeById(request.params.id, request.user.id);
+      await Sessions.incPlayerCount(Session);
+      return response.json({ success: true });
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get(
+  "/sport/partSession/editSession/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const Session = await Sessions.findByPk(request.params.id);
+    const sport = await Sport.findByPk(Session.sportId);
+    try {
+      const Players = await playerSessions.getPlayers(Session.id);
+      const mapped = Players.map((v) => v.player_name);
+      const names = mapped.join(",");
+      response.render("editSession", {
+        csrfToken: request.csrfToken(),
+        Session,
+        names,
+        sport,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.post(
+  "/editSession/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    if (request.body.playersNeeded < 0) {
+      request.flash("error", "Number of players needed can't less than 0");
+      return response.redirect(
+        `/sport/partSession/editSession/${request.params.id}`
+      );
+    }
+    try {
+      const Session = await Sessions.findByPk(request.params.id);
+      const newSession = await Sessions.editSession({
+        Session1: Session,
+        sessionName: request.body.sessionName,
+        date: request.body.date,
+        time: request.body.time,
+        venue: request.body.venue,
+        playersNeeded: request.body.playersNeeded,
+      });
+      console.log(newSession);
+      const Players = await playerSessions.getPlayers(Session.id);
+      await playerSessions.deleteSession(request.params.id);
+      const names = request.body.names;
+      const nameArr = names.split(",");
+      for (let i = 0; i < nameArr.length; i++) {
+        let value = false;
+        for (let j = 0; j < Players.length; j++) {
+          if (Players[j].player_name === nameArr[i]) {
+            console.log("individual palyers", Players[j]);
+            await playerSessions.addPlayers({
+              player_name: nameArr[i],
+              session_id: newSession.id,
+              player_id: Players[j].player_id,
+            });
+            value = true;
+            break;
+          }
+        }
+        if (value === false) {
+          await playerSessions.create({
+            player_name: nameArr[i],
+            session_id: newSession.id,
+          });
+        }
+      }
+      return response.redirect(`/sport/partSession/${request.params.id}`);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get(
+  "/sport/partSession/cancel/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const Session = await Sessions.findByPk(request.params.id);
+    const sport = await Sport.findByPk(Session.sportId);
+    try {
+      response.render("cancelSession", {
+        csrfToken: request.csrfToken(),
+        Session,
+        sport,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.post(
+  "/cancel/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const Session = await Sessions.findByPk(request.params.id);
+      console.log("Canceling Session");
+      const CancelSession = await Session.update({
+        canceled: true,
+        message: request.body.message,
+      });
+      return response.redirect(`/sport/partSession/${request.params.id}`);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  }
+);
+
+app.get(
+  "/sport/viewPreSessions/:sportId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const sport = await Sport.findByPk(request.params.sportId);
+    const allSportSessions = await Sessions.SportSessions(
+      request.params.sportId
+    );
+    const allPrevious = await Sessions.PrevSessions(allSportSessions);
+    try {
+      response.render("prevSession", {
+        csrfToken: request.csrfToken(),
+        sport,
+        allPrevious,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+app.get(
+  "/viewReports",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      console.log(request.body);
+      response.render("viewReports", {
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+let NoOfSess, reports, Date1, Date2;
+app.post(
+  "/viewReports",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      const allsessions = await Sessions.getUncancelSess();
+      Date1 = request.body.date1;
+      Date2 = request.body.date2;
+      const sessions = await Sessions.findRange(
+        allsessions,
+        request.body.date1,
+        request.body.date2
+      );
+      console.log("filtered sessions", sessions);
+      NoOfSess = sessions.length;
+
+      let sportIDs = sessions.map((v) => v.sportId);
+      sportIDs = new Set(sportIDs);
+      sportIDs = Array.from(sportIDs);
+
+      console.log(sportIDs, sportIDs.length);
+
+      reports = [];
+      for (let i = 0; i < sportIDs.length; i++) {
+        const counter = await Sessions.count(sessions, sportIDs[i]);
+        const sport = await Sport.findByPk(sportIDs[i]);
+        const obj = {
+          sportId: sportIDs[i],
+          sportName: sport.title,
+          count: counter,
+        };
+        reports.push(obj);
+      }
+      console.log("reports", reports);
+      response.redirect("viewReportsResult");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+app.get(
+  "/viewReportsResult",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    try {
+      reports.sort((a, b) => b.count - a.count);
+      console.log(reports);
+      response.render("viewReportsResult", {
+        NoOfSess,
+        reports,
+        Date1,
+        Date2,
+        csrfToken: request.csrfToken(),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 module.exports = app;
