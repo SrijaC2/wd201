@@ -281,9 +281,10 @@ app.get(
     const allSportSessions = await Sessions.SportSessions(
       request.params.sportId
     );
-    const allUpcoming = await Sessions.UpSessions(allSportSessions);
+    let allUpcoming = await Sessions.UpSessions(allSportSessions);
+    console.log(allUpcoming);
+    allUpcoming = await Sessions.UncancelSess(allUpcoming);
     const userRole = request.user.role;
-    console.log(allSessionPart);
     if (request.accepts("html")) {
       try {
         response.render("ParticularSpt", {
@@ -608,6 +609,10 @@ app.post(
   "/viewReports",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    if (new Date(request.body.date1) >= new Date(request.body.date2)) {
+      request.flash("error", "Enter Valid Range");
+      return response.redirect("/viewReports");
+    }
     try {
       const allsessions = await Sessions.getUncancelSess();
       Date1 = request.body.date1;
@@ -638,7 +643,7 @@ app.post(
         reports.push(obj);
       }
       console.log("reports", reports);
-      response.redirect("viewReportsResult");
+      response.redirect("/viewReportsResult");
     } catch (error) {
       console.log(error);
     }

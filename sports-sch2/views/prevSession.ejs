@@ -51,19 +51,9 @@
                         <%const hour = +hourString % 24;%>
                         <%return (hour % 12 || 12) + ":" + minute + (hour < 12 ? "AM" : "PM");%>
                     <%}%>
-                    <% for(var i=0; i< allPrevious.length; i++) { %>
-                        <%if (!allPrevious[i].canceled){%>
-                        <div class="font-medium rounded px-2 py-1">
-                            <p><%=allPrevious[i].sessionName%></p>
-                            <p style="display: inline;"><%=(new Date(allPrevious[i].date)).toDateString() %></p>
-                            <p style="display: inline;"><%=formatTime(allPrevious[i].time)%></p>
-                        <%if (allPrevious[i].playersNeeded === 0){%>
-                            <p style="color:red; display: inline;">Fully Booked</p>
-                        <%}else{%>
-                            <p style="display: inline;"><%=allPrevious[i].playersNeeded %> slots</p>
-                        <%}%>
-                        </div>
-                        <%}else{%>
+                    <%if(allPrevious.length!=0){%>
+                        <% for(var i=0; i< allPrevious.length; i++) { %>
+                            <%if (!allPrevious[i].canceled){%>
                             <div class="font-medium rounded px-2 py-1">
                                 <p><%=allPrevious[i].sessionName%></p>
                                 <p style="display: inline;"><%=(new Date(allPrevious[i].date)).toDateString() %></p>
@@ -73,10 +63,25 @@
                             <%}else{%>
                                 <p style="display: inline;"><%=allPrevious[i].playersNeeded %> slots</p>
                             <%}%>
-                            <p style="color:red;"><b>Canceled due to <%=allPrevious[i].message%></b></p>
                             </div>
-                        <%}%>
-                        <% } %>
+                            <%}else{%>
+                                <div class="font-medium rounded px-2 py-1">
+                                    <p><%=allPrevious[i].sessionName%></p>
+                                    <p style="display: inline;"><%=(new Date(allPrevious[i].date)).toDateString() %></p>
+                                    <p style="display: inline;"><%=formatTime(allPrevious[i].time)%></p>
+                                <%if (allPrevious[i].playersNeeded === 0){%>
+                                    <p style="color:red; display: inline;">Fully Booked</p>
+                                <%}else{%>
+                                    <p style="display: inline;"><%=allPrevious[i].playersNeeded %> slots</p>
+                                <%}%>
+                                <p style="color:red;"><b>Canceled due to <%=allPrevious[i].message%></b></p>
+                                </div>
+                            <%}%>
+                            <% } %>
+                    <%}else{%>
+                        <p>There are no previous sessions</p>
+                    <%}%>
+                   
                 </div>
         </div>
     </div>

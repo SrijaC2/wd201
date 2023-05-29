@@ -118,6 +118,13 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
+    static async UncancelSess(session) {
+      const UncancelSess = session.filter(
+        (session) => session.canceled === null
+      );
+      return UncancelSess;
+    }
+
     static async count(session, id) {
       let counter = 0;
       for (let j = 0; j < session.length; j++) {
